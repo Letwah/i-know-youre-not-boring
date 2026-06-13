@@ -58,12 +58,17 @@ export class RenderPipeline {
   private draw() {
     if (!this.config) return
 
-    const { source, filter, params, cols, rows, outputCanvas } = this.config
+    const { source, filter, params, outputCanvas } = this.config
 
     if (
       source.kind === 'video' &&
       (source.element as HTMLVideoElement).readyState < 2
     ) return
+
+    // Recompute grid from cellSize every frame so the slider is instant
+    const cellSize = (params['cellSize'] as number | undefined) ?? 10
+    const cols = Math.max(1, Math.floor(outputCanvas.width / cellSize))
+    const rows = Math.max(1, Math.floor(outputCanvas.height / cellSize))
 
     const cellW = outputCanvas.width / cols
     const cellH = outputCanvas.height / rows

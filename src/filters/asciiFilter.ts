@@ -54,21 +54,21 @@ export const controls: ControlDef[] = [
   },
   {
     type: 'range',
-    id: 'cols',
-    label: 'Grid columns',
-    min: 20,
-    max: 240,
-    step: 4,
-    default: 80,
+    id: 'cellSize',
+    label: 'Cell size',
+    min: 4,
+    max: 40,
+    step: 1,
+    default: 10,
   },
   {
     type: 'range',
-    id: 'rows',
-    label: 'Grid rows',
-    min: 10,
-    max: 160,
-    step: 2,
-    default: 45,
+    id: 'fontScale',
+    label: 'Font scale',
+    min: 0.4,
+    max: 2.0,
+    step: 0.05,
+    default: 1.0,
   },
   {
     type: 'range',
@@ -131,11 +131,12 @@ export const asciiFilter: Filter = {
     const rampKey = params['ramp'] as string
     const bgMode = params['bgMode'] as string
     const glowOpacity = params['glowOpacity'] as number
+    const fontScale = params['fontScale'] as number
 
     const ramp = buildRamp(RAMPS[rampKey] ?? DEFAULT_RAMP)
     const { cols, rows, cellW, cellH, data } = grid
 
-    const fontSize = Math.floor(Math.min(cellW, cellH) * 1.2)
+    const fontSize = Math.floor(Math.min(cellW, cellH) * fontScale)
     ctx.font = `${fontSize}px monospace`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'

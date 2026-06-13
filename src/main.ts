@@ -49,9 +49,10 @@ const history = new HistoryPanel(historyRailEl)
 let params: ControlValues = defaultValues(asciiFilter.controls)
 
 function getGridSize() {
+  const cellSize = (params['cellSize'] as number | undefined) ?? 10
   return {
-    cols: params['cols'] as number ?? 80,
-    rows: params['rows'] as number ?? 45,
+    cols: Math.max(1, Math.floor(outputCanvas.width / cellSize)),
+    rows: Math.max(1, Math.floor(outputCanvas.height / cellSize)),
   }
 }
 
