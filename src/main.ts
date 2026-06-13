@@ -147,6 +147,18 @@ fileInput.addEventListener('change', () => {
   if (file) loadFile(file)
 })
 
+// ── Screen wake / visibility restore ─────────────────────────────────────────
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return
+  // Repaint immediately so the canvas isn't blank while RAF catches up
+  pipeline.renderOnce()
+  // Resume video if the browser paused it during sleep
+  if (currentSource?.kind === 'video') {
+    ;(currentSource.element as HTMLVideoElement).play().catch(() => {})
+  }
+})
+
 // ── Export ────────────────────────────────────────────────────────────────────
 
 btnGrabFrame.addEventListener('click', () => {

@@ -50,13 +50,16 @@ export class RenderPipeline {
     return this.config?.outputCanvas.toDataURL('image/png') ?? ''
   }
 
-  private tick = () => {
-    this.rafId = requestAnimationFrame(this.tick)
+  /** Force one render immediately — use on visibility restore after screen sleep */
+  renderOnce() {
+    this.draw()
+  }
+
+  private draw() {
     if (!this.config) return
 
     const { source, filter, params, cols, rows, outputCanvas } = this.config
 
-    // Skip if video not ready
     if (
       source.kind === 'video' &&
       (source.element as HTMLVideoElement).readyState < 2
@@ -66,7 +69,6 @@ export class RenderPipeline {
     const cellH = outputCanvas.height / rows
     const offW = Math.ceil(cellW) * cols
     const offH = Math.ceil(cellH) * rows
-    // Only resize when dimensions actually change — resizing resets the canvas every frame otherwise
     if (this.offscreen.width !== offW || this.offscreen.height !== offH) {
       this.offscreen.width = offW
       this.offscreen.height = offH
@@ -74,5 +76,10 @@ export class RenderPipeline {
 
     const grid = sampleFrame(this.offCtx, source.element, { cols, rows })
     filter.render(this.outputCtx, grid, params)
+  }
+
+  private tick = () => {
+    this.rafId = requestAnimationFrame(this.tick)
+    this.draw()
   }
 }
