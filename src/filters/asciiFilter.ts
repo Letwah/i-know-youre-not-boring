@@ -92,6 +92,22 @@ export const controls: ControlDef[] = [
     options: ['standard', 'blocks', 'dots', 'custom'],
     default: 'standard',
   },
+  {
+    type: 'select',
+    id: 'bgMode',
+    label: 'Background',
+    options: ['flat', 'cell-glow'],
+    default: 'flat',
+  },
+  {
+    type: 'range',
+    id: 'glowOpacity',
+    label: 'Glow intensity',
+    min: 0,
+    max: 1,
+    step: 0.05,
+    default: 0.35,
+  },
 ]
 
 const RAMPS: Record<string, string> = {
@@ -113,6 +129,8 @@ export const asciiFilter: Filter = {
     const contrast = params['contrast'] as number
     const invert = params['invert'] as boolean
     const rampKey = params['ramp'] as string
+    const bgMode = params['bgMode'] as string
+    const glowOpacity = params['glowOpacity'] as number
 
     const ramp = buildRamp(RAMPS[rampKey] ?? DEFAULT_RAMP)
     const { cols, rows, cellW, cellH, data } = grid
@@ -122,7 +140,7 @@ export const asciiFilter: Filter = {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
 
-    // Background
+    // Flat background always goes down first
     ctx.fillStyle = bgColour
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
@@ -133,21 +151,26 @@ export const asciiFilter: Filter = {
         const g = data[idx + 1]
         const b = data[idx + 2]
 
+        const cx = col * cellW
+        const cy = row * cellH
+
+        // Cell-glow: flood each cell with its source colour before the glyph
+        if (bgMode === 'cell-glow') {
+          ctx.fillStyle = `rgba(${r},${g},${b},${glowOpacity})`
+          ctx.fillRect(cx, cy, cellW, cellH)
+        }
+
         // Apply contrast around mid-point
         const raw = pixelBrightness(r, g, b)
         const contrasted = Math.max(0, Math.min(1, (raw - 0.5) * contrast + 0.5))
-
         const glyph = brightnessToGlyph(contrasted, ramp, invert)
-
-        const cx = col * cellW + cellW / 2
-        const cy = row * cellH + cellH / 2
 
         ctx.fillStyle =
           colourSource === 'source-pixel'
             ? `rgb(${r},${g},${b})`
             : inkColour
 
-        ctx.fillText(glyph, cx, cy)
+        ctx.fillText(glyph, cx + cellW / 2, cy + cellH / 2)
       }
     }
   },
