@@ -86,14 +86,13 @@ function loadFile(file: File) {
     video.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;'
     document.body.appendChild(video)
 
-    // Attach listener BEFORE setting src — blob URLs can resolve synchronously
     video.addEventListener('loadedmetadata', () => {
       resizeCanvas(video.videoWidth, video.videoHeight)
       currentSource = { kind: 'video', element: video }
       const { cols, rows } = getGridSize()
       pipeline.configure({ outputCanvas, source: currentSource, filter: asciiFilter, params, cols, rows })
       pipeline.start()
-      video.play().catch(() => { /* autoplay blocked — user can tap */ })
+      video.play().catch(() => { /* autoplay blocked */ })
     })
 
     video.src = url
