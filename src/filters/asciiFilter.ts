@@ -63,6 +63,15 @@ export const controls: ControlDef[] = [
   },
   {
     type: 'range',
+    id: 'cellAspect',
+    label: 'Cell height',
+    min: 0.5,
+    max: 4.0,
+    step: 0.1,
+    default: 2.0,
+  },
+  {
+    type: 'range',
     id: 'fontScale',
     label: 'Font scale',
     min: 0.4,
@@ -136,7 +145,8 @@ export const asciiFilter: Filter = {
     const ramp = buildRamp(RAMPS[rampKey] ?? DEFAULT_RAMP)
     const { cols, rows, cellW, cellH, data } = grid
 
-    const fontSize = Math.floor(Math.min(cellW, cellH) * fontScale)
+    // Base font size on cell width (not min) so tall cells still use full width
+    const fontSize = Math.floor(cellW * fontScale)
     ctx.font = `${fontSize}px monospace`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
