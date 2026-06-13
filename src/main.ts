@@ -84,7 +84,7 @@ function snapAndRecord(label: string, restore: () => void) {
   }, 800)
 }
 
-function loadFile(file: File) {
+function loadFile(file: File, addToHistory = true) {
   pipeline.stop()
 
   const url = URL.createObjectURL(file)
@@ -105,7 +105,7 @@ function loadFile(file: File) {
       pipeline.configure({ outputCanvas, source: currentSource, filter: asciiFilter, params, cols, rows })
       pipeline.start()
       video.play().catch(() => { /* autoplay blocked */ })
-      snapAndRecord(label, () => loadFile(file))
+      if (addToHistory) snapAndRecord(label, () => loadFile(file, false))
     })
 
     video.src = url
@@ -117,7 +117,7 @@ function loadFile(file: File) {
       const { cols, rows } = getGridSize()
       pipeline.configure({ outputCanvas, source: currentSource, filter: asciiFilter, params, cols, rows })
       pipeline.start()
-      snapAndRecord(label, () => loadFile(file))
+      if (addToHistory) snapAndRecord(label, () => loadFile(file, false))
     }
     img.src = url
   }
